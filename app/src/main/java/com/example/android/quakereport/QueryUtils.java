@@ -73,6 +73,7 @@ public final class QueryUtils {
             jsonResponse = readFromStream(inputStream);
         } catch (IOException e) {
             // TODO: Handle the exception
+            Log.i("QueryUtils.java","Error opening url connection");
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -113,6 +114,8 @@ public final class QueryUtils {
      */
     public static ArrayList<Earthquake> extractEarthquakes() {
 
+        /**
+         * TODO: Fetching data from the internet unsuccessful.
         URL queryUrl = createUrl(QUERY_URL);
         String jsonResponse="";
         try {
@@ -120,6 +123,7 @@ public final class QueryUtils {
         }catch (IOException ie) {
             Log.v("QueryUtils.java",ie.getMessage());
         }
+         */
         // Create an empty ArrayList that we can start adding earthquakes to
         ArrayList<Earthquake> earthquakes = new ArrayList<>();
 
@@ -130,7 +134,7 @@ public final class QueryUtils {
 
             // TODO: Parse the response given by the SAMPLE_JSON_RESPONSE string and
             // build up a list of Earthquake objects with the corresponding data.
-            JSONObject object = new JSONObject(jsonResponse);
+            JSONObject object = new JSONObject(SAMPLE_JSON_RESPONSE);
             JSONArray features = object.getJSONArray("features");
             for (int i = 0; i < features.length(); i++) {
                 JSONObject property = features.getJSONObject(i).getJSONObject("properties");
