@@ -17,8 +17,10 @@ package com.example.android.quakereport;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,6 +29,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class EarthquakeActivity extends AppCompatActivity {
+
+    private static final String QUERY_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
 
     public static final String LOG_TAG = EarthquakeActivity.class.getName();
 
@@ -43,14 +47,17 @@ public class EarthquakeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
 
-       //Getting the earthquakes
-        final ArrayList<Earthquake> earthquakes = QueryUtils.extractEarthquakes();
+        // Creating new EarthQuakeAsyncTask
+        new EarthQuakeAsyncTask().execute(QUERY_URL);
+    }
+
+    private void updateUi(final ArrayList<Earthquake> earthquakes) {
 
         // Find a reference to the {@link ListView} in the layout
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
 
         // Create a new {@link ArrayAdapter} of earthquakes
-        EarthquakeAdapter adapter = new EarthquakeAdapter(this,earthquakes);
+        EarthquakeAdapter adapter = new EarthquakeAdapter(this, earthquakes);
 
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
@@ -63,5 +70,24 @@ public class EarthquakeActivity extends AppCompatActivity {
                 openWebPage(earthquakes.get(position).getURL());
             }
         });
+    }
+
+    private class EarthQuakeAsyncTask extends AsyncTask<String, Void, ArrayList<Earthquake>> {
+        @Override
+        protected ArrayList<Earthquake> doInBackground(String... urls) {
+            if (urls.length < 1 || urls[0] == null) {
+                return null;
+            }
+            return QueryUtils.extractEarthquakes(urls[0]);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Earthquake> earthquakes) {
+            if (earthquakes == null) {
+                Log.v("EarthquakeActivity.java", "Object is null");
+                return;
+            }
+            updateUi(earthquakes);
+        }
     }
 }
